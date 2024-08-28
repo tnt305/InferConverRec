@@ -42,11 +42,11 @@ class ConvEvaluator:
 
     def collect_ngram(self, strs):
         for str in strs:
-            str = str.split()
+            words = str.split()
             for k in range(1, 5):
                 dist_k = f'dist@{k}'
                 if len(words) > k:
-                    for token in ngrams(str, k):
+                    for token in ngrams(words, k):
                         self.metric[dist_k].add(token)
                 else:
                     self.metric[dist_k].add(tuple(words))

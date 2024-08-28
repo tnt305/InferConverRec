@@ -1,9 +1,10 @@
 import json
 import os.path
-
 from tqdm import tqdm
 
-with open('entity2id.json', encoding='utf-8') as f:
+current_dir = '/kaggle/working/InferConverRec/data/redial'
+
+with open(f'{current_dir}/entity2id.json', encoding='utf-8') as f:
     entity2id = json.load(f)
 # movies = set()
 
@@ -41,8 +42,8 @@ def remove(src_file, tgt_file):
                 tgt.write(json.dumps(line, ensure_ascii=False) + '\n')
 
 
-src_files = ['test_data_dbpedia_raw.jsonl', 'valid_data_dbpedia_raw.jsonl', 'train_data_dbpedia_raw.jsonl']
-tgt_files = ['test_data_dbpedia.jsonl', 'valid_data_dbpedia.jsonl', 'train_data_dbpedia.jsonl']
+src_files = [f'{current_dir}/test_data_dbpedia_raw.jsonl', f'{current_dir}/valid_data_dbpedia_raw.jsonl', f'{current_dir}/train_data_dbpedia_raw.jsonl']
+tgt_files = [f'{current_dir}/test_data_dbpedia.jsonl', f'{current_dir}/valid_data_dbpedia.jsonl', f'{current_dir}/train_data_dbpedia.jsonl']
 
 for src_file, tgt_file in zip(src_files, tgt_files):
     if os.path.exists(tgt_file):

@@ -21,11 +21,11 @@ class ConvEvaluator:
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=False)
         decoded_preds = [decoded_pred.replace('<pad>', '').replace('<|endoftext|>', '') for decoded_pred in
                          decoded_preds]
-        decoded_preds = [pred.strip() for pred in decoded_preds]
+        decoded_preds = [pred.strip() for pred in decoded_preds if pred.strip()]
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=False)
         decoded_labels = [decoded_label.replace('<pad>', '').replace('<|endoftext|>', '') for decoded_label in
                           decoded_labels]
-        decoded_labels = [label.strip() for label in decoded_labels]
+        decoded_labels = [label.strip() for label in decoded_labels if label.strip()]
 
         if log and hasattr(self, 'log_file'):
             for pred, label in zip(decoded_preds, decoded_labels):
@@ -44,9 +44,11 @@ class ConvEvaluator:
             str = str.split()
             for k in range(1, 5):
                 dist_k = f'dist@{k}'
-                for token in ngrams(str, k):
-                    self.metric[dist_k].add(token)
-
+                if len(words) > k:
+                    for token in ngrams(str, k):
+                        self.metric[dist_k].add(token)
+                else:
+                    self.metricmetric[dist_k].addadd(tuple(words)
     def compute_bleu(self, preds, labels):
         for pred, label in zip(preds, labels):
             pred, label = pred.split(), [label.split()]

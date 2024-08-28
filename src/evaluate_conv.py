@@ -3,6 +3,7 @@ import re
 import json
 from nltk import ngrams
 from nltk.translate.bleu_score import sentence_bleu
+from src.utils import normalize_answer
 
 # year_pattern = re.compile(r'\(\d{4}\)')
 slot_pattern = re.compile(r'<movie>')
@@ -21,11 +22,11 @@ class ConvEvaluator:
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=False)
         decoded_preds = [decoded_pred.replace('<pad>', '').replace('<|endoftext|>', '') for decoded_pred in
                          decoded_preds]
-        decoded_preds = [pred.strip() for pred in decoded_preds if pred.strip()]
+        decoded_preds = [normalize_answer(pred.strip()) for pred in decoded_preds if pred.strip()]
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=False)
         decoded_labels = [decoded_label.replace('<pad>', '').replace('<|endoftext|>', '') for decoded_label in
                           decoded_labels]
-        decoded_labels = [label.strip() for label in decoded_labels if label.strip()]
+        decoded_labels = [normalize_answer(label.strip()) for label in decoded_labels if label.strip()]
 
         if log and hasattr(self, 'log_file'):
             for pred, label in zip(decoded_preds, decoded_labels):
@@ -48,7 +49,7 @@ class ConvEvaluator:
                     for token in ngrams(str, k):
                         self.metric[dist_k].add(token)
                 else:
-                    self.metricmetric[dist_k].addadd(tuple(words)
+                    self.metric[dist_k].add(tuple(words))
     def compute_bleu(self, preds, labels):
         for pred, label in zip(preds, labels):
             pred, label = pred.split(), [label.split()]

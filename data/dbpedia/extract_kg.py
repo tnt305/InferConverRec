@@ -3,6 +3,7 @@ from collections import defaultdict
 import pickle as pkl
 from tqdm import tqdm
 import shutil
+import os
 
 def load_kg(file):
     kg = defaultdict(list)  # {head entity: [(relation, tail entity)]}

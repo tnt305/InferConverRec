@@ -110,7 +110,7 @@ for file in file_list:
     all_entity |= get_item_set(file)
 print(f'# all entity: {len(all_entity)}')
 
-with open('../dbpedia/kg.pkl', 'rb') as f:
+with open('/kaggle/working/InferConverRec/data/dbpedia/kg.pkl', 'rb') as f:
     kg = pkl.load(f)
 subkg = extract_subkg(kg, all_entity, 2)
 entity2id, relation2id, subkg = kg2id(subkg)

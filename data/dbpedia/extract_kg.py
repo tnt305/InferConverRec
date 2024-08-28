@@ -17,11 +17,11 @@ def load_kg(file):
 
 
 if __name__ == '__main__':
-    kg = load_kg('data/dbpedia/mappingbased-objects_lang=en.ttl')
+    kg = load_kg('dbpedia/mappingbased-objects_lang=en.ttl')
     if 'kg.pkl' in os.listdirs('data/dbpedia'):
         pass
     elif 'kg.pkl' in os.listdirs('data'):
-        shutil.copy('data/kg.pkl', 'data/dbpedia/kg.pkl')
+        shutil.copy('kg.pkl', 'dbpedia/kg.pkl')
     else:
         raise FileNotFoundError('No kg.pkl exists in path')
     with open('kg.pkl', 'wb') as f:

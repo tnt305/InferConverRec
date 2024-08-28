@@ -2,9 +2,9 @@ import json
 from collections import defaultdict
 import pickle as pkl
 from tqdm.auto import tqdm
-import os
-
-os.chdir("data/redial")
+# import os
+# os.chdir("data/redial")
+current_dir = "/redial"
 
 def get_item_set(file):
     entity = set()
@@ -73,7 +73,7 @@ def extract_subkg(kg, seed_set, n_hop):
 
 def kg2id(kg):
     entity_set = all_entity
-    with open('relation_set.json', encoding='utf-8') as f:
+    with open(f'{current_dir}/relation_set.json', encoding='utf-8') as f:
         relation_set = json.load(f)
 
     for head, relation_tails in tqdm(kg.items()):
@@ -102,9 +102,9 @@ def kg2id(kg):
 
 all_entity = set()
 file_list = [
-    'test_data_dbpedia_raw.jsonl',
-    'valid_data_dbpedia_raw.jsonl',
-    'train_data_dbpedia_raw.jsonl',
+    'f'{current_dir}/test_data_dbpedia_raw.jsonl',
+    'f'{current_dir}/valid_data_dbpedia_raw.jsonl',
+    'f'{current_dir}/train_data_dbpedia_raw.jsonl',
 ]
 for file in file_list:
     all_entity |= get_item_set(file)
@@ -115,11 +115,11 @@ with open('../dbpedia/kg.pkl', 'rb') as f:
 subkg = extract_subkg(kg, all_entity, 2)
 entity2id, relation2id, subkg = kg2id(subkg)
 
-with open('dbpedia_subkg.json', 'w', encoding='utf-8') as f:
+with open(f'{current_dir}/dbpedia_subkg.json', 'w', encoding='utf-8') as f:
     json.dump(subkg, f, ensure_ascii=False)
-with open('entity2id.json', 'w', encoding='utf-8') as f:
+with open(f'{current_dir}/entity2id.json', 'w', encoding='utf-8') as f:
     json.dump(entity2id, f, ensure_ascii=False)
-with open('relation2id.json', 'w', encoding='utf-8') as f:
+with open(f'{current_dir}/relation2id.json', 'w', encoding='utf-8') as f:
     json.dump(relation2id, f, ensure_ascii=False)
 
 # relation > 500: edge: 172644, #relation: 45, #entity: 50593

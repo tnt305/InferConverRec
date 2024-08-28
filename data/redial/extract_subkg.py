@@ -4,7 +4,7 @@ import pickle as pkl
 from tqdm.auto import tqdm
 import os
 
-os.chdir('data/redial')
+os.chdir('/redial')
 
 def get_item_set(file):
     entity = set()

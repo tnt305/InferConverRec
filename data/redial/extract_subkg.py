@@ -102,9 +102,9 @@ def kg2id(kg):
 
 all_entity = set()
 file_list = [
-    'f'{current_dir}/test_data_dbpedia_raw.jsonl',
-    'f'{current_dir}/valid_data_dbpedia_raw.jsonl',
-    'f'{current_dir}/train_data_dbpedia_raw.jsonl',
+    f'{current_dir}/test_data_dbpedia_raw.jsonl',
+    f'{current_dir}/valid_data_dbpedia_raw.jsonl',
+    f'{current_dir}/train_data_dbpedia_raw.jsonl',
 ]
 for file in file_list:
     all_entity |= get_item_set(file)

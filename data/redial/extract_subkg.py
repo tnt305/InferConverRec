@@ -2,7 +2,9 @@ import json
 from collections import defaultdict
 import pickle as pkl
 from tqdm.auto import tqdm
+import os
 
+os.chdir('data/redial')
 
 def get_item_set(file):
     entity = set()

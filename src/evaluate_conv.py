@@ -3,7 +3,7 @@ import re
 import json
 from nltk import ngrams
 from nltk.translate.bleu_score import sentence_bleu
-from src.utils import normalize_answer
+from utils import normalize_answer
 
 # year_pattern = re.compile(r'\(\d{4}\)')
 slot_pattern = re.compile(r'<movie>')

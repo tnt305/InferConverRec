@@ -20,6 +20,7 @@ from evaluate_conv import ConvEvaluator
 from model_gpt2 import PromptGPT2forCRS
 from model_prompt import KGPrompt
 
+import multiprocessing
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -72,6 +73,7 @@ def parse_args():
 
 
 if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn', force=True)
     args = parse_args()
     config = vars(args)
 
@@ -159,6 +161,7 @@ if __name__ == '__main__':
         batch_size=args.per_device_eval_batch_size,
         num_workers=args.num_workers,
         collate_fn=data_collator_generator,
+        multiprocessing_context=multiprocessing.get_context('spawn')
     )
     gen_dir = os.path.join('save', args.dataset)
     os.makedirs(gen_dir, exist_ok=True)

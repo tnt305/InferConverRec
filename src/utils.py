@@ -47,8 +47,8 @@ def padded_tensor(
     if debug and max_len is not None:
         t = max(t, max_len)
 
-    # if use_amp:
-    #     t = t // 8 * 8
+    if use_amp:
+        t = t // 8 * 8
 
     output = torch.full((n, t), fill_value=pad_idx, dtype=torch.long, device=device)
 

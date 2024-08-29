@@ -11,9 +11,10 @@ import wandb
 from accelerate import Accelerator
 from accelerate.utils import set_seed
 from loguru import logger
+from torch.optim import AdamW
 from torch.utils.data import DataLoader, random_split
 from tqdm.auto import tqdm
-from transformers import AdamW, get_linear_schedule_with_warmup, AutoTokenizer, AutoModel
+from transformers import get_linear_schedule_with_warmup, AutoTokenizer, AutoModel
 
 from config import gpt2_special_tokens_dict, prompt_special_tokens_dict
 from dataset_dbpedia import DBpedia

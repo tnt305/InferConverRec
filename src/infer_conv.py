@@ -20,7 +20,7 @@ from evaluate_conv import ConvEvaluator
 from model_gpt2 import PromptGPT2forCRS
 from model_prompt import KGPrompt
 
-import multiprocessing
+# import multiprocessing
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -30,7 +30,7 @@ def parse_args():
     # data
     parser.add_argument("--dataset", type=str, required=True, help="A file containing all data.")
     parser.add_argument("--split", type=str, required=True)
-    parser.add_argument('--num_workers', type=int, default= 2)
+    parser.add_argument('--num_workers', type=int, default= 0)
     parser.add_argument('--context_max_length', type=int, help="max length of both encoder and decoder input.")
     parser.add_argument('--resp_max_length', type=int, help="max length of decoder input.")
     parser.add_argument("--entity_max_length", type=int, help="max entity length in dataset.")
@@ -55,7 +55,7 @@ def parse_args():
                         help="Batch size (per device) for the evaluation dataloader.")
     parser.add_argument("--gradient_accumulation_steps", type=int, default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
-    parser.add_argument("--learning_rate", type=float, default=2e-5,
+    parser.add_argument("--learning_rate", type=float, default=1e-5,
                         help="Initial learning rate (after the potential warmup period) to use.")
     parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay to use.")
     parser.add_argument('--max_grad_norm', type=float)
@@ -73,7 +73,7 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn', force=True)
+    # multiprocessing.set_start_method('spawn', force=True)
     args = parse_args()
     config = vars(args)
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         batch_size=args.per_device_eval_batch_size,
         num_workers=args.num_workers,
         collate_fn=data_collator_generator,
-        multiprocessing_context=multiprocessing.get_context('spawn')
+        # multiprocessing_context=multiprocessing.get_context('spawn')
     )
     gen_dir = os.path.join('save', args.dataset)
     os.makedirs(gen_dir, exist_ok=True)

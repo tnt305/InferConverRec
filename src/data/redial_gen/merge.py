@@ -9,12 +9,12 @@ dataset = 'redial'
 
 ## currently at src/
 for split in ['train', 'valid', 'test']:
-    raw_file_path = f"data/{dataset}/{split}_data_processed.jsonl"
+    raw_file_path = f"/kaggle/working/InferConverRec/src/data/{dataset}/{split}_data_processed.jsonl"
     raw_file = open(raw_file_path, encoding='utf-8')
     raw_data = raw_file.readlines()
     # print(len(raw_data))
 
-    gen_file_path = f"save/{dataset}/{gen_file_prefix}_{split}.jsonl"
+    gen_file_path = f"/kaggle/working/InferConverRec/src/save/{dataset}/{gen_file_prefix}_{split}.jsonl"
     gen_file = open(gen_file_path, encoding='utf-8')
     gen_data = gen_file.readlines()
 

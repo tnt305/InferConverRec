@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument("--n_prefix_conv", type=int)
     parser.add_argument("--num_bases", type=int, default=8, help="num_bases in RGCN")
     # optim
-    parser.add_argument("--num_train_epochs", type=int, default=10, help="Total number of training epochs to perform.")
+    parser.add_argument("--num_train_epochs", type=int, default= 6, help="Total number of training epochs to perform.")
     parser.add_argument("--max_train_steps", type=int, default=None,
                         help="Total number of training steps to perform. If provided, overrides num_train_epochs.")
     parser.add_argument("--per_device_train_batch_size", type=int, default=4,
@@ -54,12 +54,12 @@ def parse_args():
                         help="Batch size (per device) for the evaluation dataloader.")
     parser.add_argument("--gradient_accumulation_steps", type=int, default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
-    parser.add_argument("--learning_rate", type=float, default=1e-5,
+    parser.add_argument("--learning_rate", type=float, default=2e-5,
                         help="Initial learning rate (after the potential warmup period) to use.")
     parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay to use.")
     parser.add_argument('--max_grad_norm', type=float)
     parser.add_argument('--num_warmup_steps', type=int, default=10000)
-    parser.add_argument('--fp16', action='store_true', help='use automatic mixed precision to speed up.')
+    parser.add_argument('--fp16', default='fp16', help='use automatic mixed precision to speed up.')
     # wandb
     parser.add_argument("--use_wandb", action="store_true", help="whether to use wandb")
     parser.add_argument("--entity", type=str, help="wandb username")
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     config = vars(args)
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us.
-    accelerator = Accelerator(device_placement=False, fp16=args.fp16)
+    accelerator = Accelerator(device_placement=False, mixed_precision = args.fp16)
     device = accelerator.device
 
     # Make one log on every process with the configuration for debugging.

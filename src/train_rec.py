@@ -122,14 +122,14 @@ if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
     tokenizer.add_special_tokens(gpt2_special_tokens_dict)
     model = PromptGPT2forCRS.from_pretrained(args.model)
-    model.resize_token_embeddings(len(tokenizer))
+    model.resize_token_embeddings(len(tokenizer), pad_to_multiple_of = 128)
     model.config.pad_token_id = tokenizer.pad_token_id
     model = model.to(device)
 
     text_tokenizer = AutoTokenizer.from_pretrained(args.text_tokenizer)
     text_tokenizer.add_special_tokens(prompt_special_tokens_dict)
     text_encoder = AutoModel.from_pretrained(args.text_encoder)
-    text_encoder.resize_token_embeddings(len(text_tokenizer))
+    text_encoder.resize_token_embeddings(len(text_tokenizer), pad_to_multiple_of = 128)
     text_encoder = text_encoder.to(device)
 
     prompt_encoder = KGPrompt(

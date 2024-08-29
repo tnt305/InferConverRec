@@ -60,7 +60,7 @@ def parse_args():
     parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay to use.")
     parser.add_argument('--max_grad_norm', type=float)
     parser.add_argument('--num_warmup_steps', type=int)
-    parser.add_argument('--fp16', action='store_true')
+    parser.add_argument('--fp16', type = str, default = 'fp16')
     # wandb
     parser.add_argument("--use_wandb", action="store_true", help="whether to use wandb")
     parser.add_argument("--entity", type=str, help="wandb username")
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     config = vars(args)
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us.
-    accelerator = Accelerator(device_placement=False, fp16=args.fp16)
+    accelerator = Accelerator(device_placement=False, mixed_precision = args.fp16)
     device = accelerator.device
 
     # Make one log on every process with the configuration for debugging.

@@ -29,7 +29,7 @@ def parse_args():
     # data
     parser.add_argument("--dataset", type=str, required=True, help="A file containing all data.")
     parser.add_argument("--split", type=str, required=True)
-    parser.add_argument('--num_workers', type=int, default=0)
+    parser.add_argument('--num_workers', type=int, default= 2)
     parser.add_argument('--context_max_length', type=int, help="max length of both encoder and decoder input.")
     parser.add_argument('--resp_max_length', type=int, help="max length of decoder input.")
     parser.add_argument("--entity_max_length", type=int, help="max entity length in dataset.")
@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument("--num_train_epochs", type=int, default= 8, help="Total number of training epochs to perform.")
     parser.add_argument("--max_train_steps", type=int, default=None,
                         help="Total number of training steps to perform. If provided, overrides num_train_epochs.")
-    parser.add_argument("--per_device_train_batch_size", type=int, default= 32,
+    parser.add_argument("--per_device_train_batch_size", type=int, default= 16,
                         help="Batch size (per device) for the training dataloader.")
     parser.add_argument("--per_device_eval_batch_size", type=int, default=4,
                         help="Batch size (per device) for the evaluation dataloader.")

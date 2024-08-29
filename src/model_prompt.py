@@ -140,6 +140,6 @@ class KGPrompt(nn.Module):
     def load(self, load_dir):
         load_path = os.path.join(load_dir, 'model.pt')
         missing_keys, unexpected_keys = self.load_state_dict(
-            torch.load(load_path, map_location=torch.device('cpu')), strict=False
+            torch.load(load_path, map_location=torch.device('cpu'), weights_only=True), strict=False
         )
         print(missing_keys, unexpected_keys)

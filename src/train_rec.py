@@ -305,11 +305,16 @@ if __name__ == '__main__':
                 ranks = [[kg['item_ids'][rank] for rank in batch_rank] for batch_rank in ranks]
                 labels = batch['context']['rec_labels']
                 evaluator.evaluate(ranks, labels)
-
+                
         # metric
-        report = accelerator.gather(evaluator.report())
-        for k, v in report.items():
-            report[k] = v.sum().item()
+        gathered_report = {}
+        for k, v in evaluator.report().items():
+            if isinstance(v, torch.Tensor):
+                gathered_report[k] = accelerator.gather(v.to(accelerator.device))
+            else:
+                gathered_report[k] = v  # Handle non-tensor items differently if needed
+
+        report = {k: v.sum().item() if isinstance(v, torch.Tensor) else v for k, v in gathered_report.items()}
 
         valid_report = {}
         for k, v in report.items():
@@ -351,9 +356,14 @@ if __name__ == '__main__':
                 evaluator.evaluate(ranks, labels)
 
         # metric
-        report = accelerator.gather(evaluator.report())
-        for k, v in report.items():
-            report[k] = v.sum().item()
+        gathered_report = {}
+        for k, v in evaluator.report().items():
+            if isinstance(v, torch.Tensor):
+                gathered_report[k] = accelerator.gather(v.to(accelerator.device))
+            else:
+                gathered_report[k] = v  # Handle non-tensor items differently if needed
+
+        report = {k: v.sum().item() if isinstance(v, torch.Tensor) else v for k, v in gathered_report.items()}
 
         test_report = {}
         for k, v in report.items():

@@ -185,7 +185,7 @@ if __name__ == '__main__':
         entity_max_length=args.entity_max_length,
     )
     data_collator = CRSRecDataCollator(
-        tokenizer=tokenizer, device=device, debug=args.debug,
+        tokenizer=tokenizer, device=device, use_amp = True, debug=args.debug,
         context_max_length=args.context_max_length, entity_max_length=args.entity_max_length,
         pad_entity_id=kg['pad_entity_id'],
         prompt_tokenizer=text_tokenizer, prompt_max_length=args.prompt_max_length,

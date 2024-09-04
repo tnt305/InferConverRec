@@ -13,11 +13,18 @@ text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
 
 # Load your pre-trained prompt encoder
-pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
+pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
+pre_trained_prompt = torch.nn.Linear(pre_trained_prompt_state['weight'].size(1), pre_trained_prompt_state['weight'].size(0)).to(device)
+pre_trained_prompt.load_state_dict(pre_trained_prompt_state)
 
 # Load your trained prompts for conversation and recommendation
-conv_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
-rec_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
+conv_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
+conv_prompt_encoder = torch.nn.Linear(conv_prompt_encoder_state['weight'].size(1), conv_prompt_encoder_state['weight'].size(0)).to(device)
+conv_prompt_encoder.load_state_dict(conv_prompt_encoder_state)
+
+rec_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
+rec_prompt_encoder = torch.nn.Linear(rec_prompt_encoder_state['weight'].size(1), rec_prompt_encoder_state['weight'].size(0)).to(device)
+rec_prompt_encoder.load_state_dict(rec_prompt_encoder_state)
 
 # Set up Accelerator
 accelerator = Accelerator()

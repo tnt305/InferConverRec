@@ -44,21 +44,26 @@ def create_linear_from_state(state_dict):
     if not isinstance(weight, torch.Tensor):
         raise ValueError(f"Weight must be a tensor, got {type(weight)}")
 
-    linear = torch.nn.Linear(weight.size(1), weight.size(0), bias=(bias is not None)).to(device)
+    # Transpose the weight if necessary
+    if weight.shape[1] == 768:  # Assuming 768 is the input dimension
+        weight = weight.t()
+
+    linear = torch.nn.Linear(weight.shape[1], weight.shape[0], bias=(bias is not None)).to(device)
     with torch.no_grad():
         linear.weight.copy_(weight)
         if bias is not None:
             linear.bias.copy_(bias)
     return linear
 
-# print("Pre-trained prompt state:", pre_trained_prompt_state)
-# print("Conversation prompt encoder state:", conv_prompt_encoder_state)
-# print("Recommendation prompt encoder state:", rec_prompt_encoder_state)
-
 # Create linear layers
 pre_trained_prompt = create_linear_from_state(pre_trained_prompt_state)
 conv_prompt_encoder = create_linear_from_state(conv_prompt_encoder_state)
 rec_prompt_encoder = create_linear_from_state(rec_prompt_encoder_state)
+
+# Print shapes for debugging
+print("Pre-trained prompt weight shape:", pre_trained_prompt.weight.shape)
+print("Conv prompt encoder weight shape:", conv_prompt_encoder.weight.shape)
+print("Rec prompt encoder weight shape:", rec_prompt_encoder.weight.shape)
 
 # Set up Accelerator
 accelerator = Accelerator()
@@ -73,7 +78,7 @@ def get_recommendations(context):
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1))
     
     # Prepare the recommendation prompt
     rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
@@ -106,7 +111,7 @@ def chatbot(message, history):
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1))
     
     # Prepare the conversation prompt
     conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)

@@ -16,11 +16,11 @@ tokenizer.add_special_tokens({
 model.config.pad_token_id = tokenizer.pad_token_id
 
 
-text_tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+text_tokenizer = AutoTokenizer.from_pretrained("FacebookAI/roberta-base")
 text_tokenizer.add_special_tokens({
     'additional_special_tokens': ['<movie>'],
 })
-text_encoder = AutoModel.from_pretrained("roberta-base").to(device)
+text_encoder = AutoModel.from_pretrained("FacebookAI/roberta-base").to(device)
 
 # Load and inspect your pre-trained prompt encoder
 pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)

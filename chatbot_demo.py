@@ -9,8 +9,18 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Load your trained models and tokenizers
 tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
 model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small").to(device)
-text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
+tokenizer.add_special_tokens({
+    'pad_token': '<pad>',
+    'additional_special_tokens': ['<movie>'],
+})
+model.config.pad_token_id = tokenizer.pad_token_id
+
+
+text_tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+text_tokenizer.add_special_tokens({
+    'additional_special_tokens': ['<movie>'],
+})
+text_encoder = AutoModel.from_pretrained("roberta-base").to(device)
 
 # Load and inspect your pre-trained prompt encoder
 pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)

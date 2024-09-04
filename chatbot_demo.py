@@ -1,6 +1,6 @@
 import gradio as gr
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, RobertaTokenizer, RobertaModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, RobertaTokenizer, RobertaModel, AutoModel
 from accelerate import Accelerator
 
 # Set the device

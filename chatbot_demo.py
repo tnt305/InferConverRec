@@ -25,13 +25,24 @@ print("Recommendation prompt encoder state keys:", rec_prompt_encoder_state.keys
 
 # Function to create a linear layer from state dict
 def create_linear_from_state(state_dict):
-    if 'weight' in state_dict and 'bias' in state_dict:
-        linear = torch.nn.Linear(state_dict['weight'].size(1), state_dict['weight'].size(0)).to(device)
-        linear.load_state_dict(state_dict)
+    if isinstance(state_dict, dict):
+        if 'weight' in state_dict:
+            # Handle the case where the state dict has a weight and bias
+            weight = state_dict['weight']
+            bias = state_dict['bias'] if 'bias' in state_dict else None
+        else:
+            # The state_dict might directly contain the weight matrix
+            weight = state_dict
+            bias = None
     else:
-        # Assuming the state dict is the weight matrix itself
-        linear = torch.nn.Linear(state_dict.size(1), state_dict.size(0), bias=False).to(device)
-        linear.weight.data = state_dict
+        weight = state_dict
+        bias = None
+
+    linear = torch.nn.Linear(weight.size(1), weight.size(0), bias=(bias is not None)).to(device)
+    with torch.no_grad():
+        linear.weight.copy_(weight)
+        if bias is not None:
+            linear.bias.copy_(bias)
     return linear
 
 # Create linear layers

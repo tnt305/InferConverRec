@@ -3,18 +3,21 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, RobertaTokenizer, RobertaModel
 from accelerate import Accelerator
 
+# Set the device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Load your trained models and tokenizers
 tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
-model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
+model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small").to(device)
 text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-text_encoder = RobertaModel.from_pretrained("roberta-base")
+text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
 
 # Load your pre-trained prompt encoder
-pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt")
+pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_redial_5e-4/best/model.pt", map_location=device)
 
 # Load your trained prompts for conversation and recommendation
-conv_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt")
-rec_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt")
+conv_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
+rec_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
 
 # Set up Accelerator
 accelerator = Accelerator()
@@ -25,7 +28,7 @@ model, text_encoder, pre_trained_prompt, conv_prompt_encoder, rec_prompt_encoder
 # Function to get recommendations
 def get_recommendations(context):
     # Tokenize the context
-    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True)
+    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt
@@ -58,7 +61,7 @@ def chatbot(message, history):
     context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
     
     # Tokenize the input
-    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True)
+    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt

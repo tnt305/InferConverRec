@@ -159,4 +159,4 @@ iface = gr.ChatInterface(
 )
 
 # Launch the interface
-iface.launch()
+iface.launch(share = True)

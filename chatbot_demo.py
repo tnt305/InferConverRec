@@ -13,7 +13,7 @@ text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
 
 # Load your pre-trained prompt encoder
-pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_redial_5e-4/best/model.pt", map_location=device)
+pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
 
 # Load your trained prompts for conversation and recommendation
 conv_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)

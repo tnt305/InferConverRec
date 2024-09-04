@@ -44,10 +44,6 @@ def create_linear_from_state(state_dict):
     if not isinstance(weight, torch.Tensor):
         raise ValueError(f"Weight must be a tensor, got {type(weight)}")
 
-    # Transpose the weight if necessary
-    if weight.shape[1] == 768:  # Assuming 768 is the input dimension
-        weight = weight.t()
-
     linear = torch.nn.Linear(weight.shape[1], weight.shape[0], bias=(bias is not None)).to(device)
     with torch.no_grad():
         linear.weight.copy_(weight)
@@ -78,7 +74,7 @@ def get_recommendations(context):
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1))
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
     
     # Prepare the recommendation prompt
     rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
@@ -111,7 +107,7 @@ def chatbot(message, history):
     context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1))
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
     
     # Prepare the conversation prompt
     conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)

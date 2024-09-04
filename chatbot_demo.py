@@ -1,5 +1,6 @@
 import gradio as gr
 import torch
+import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForCausalLM, RobertaTokenizer, RobertaModel, AutoModel
 from accelerate import Accelerator
 
@@ -15,13 +16,11 @@ tokenizer.add_special_tokens({
 })
 model.config.pad_token_id = tokenizer.pad_token_id
 
-
 text_tokenizer = RobertaTokenizer.from_pretrained("FacebookAI/roberta-base")
 text_tokenizer.add_special_tokens({
     'additional_special_tokens': ['<movie>'],
 })
 text_encoder = RobertaModel.from_pretrained("FacebookAI/roberta-base")
-text_encoder.resize_token_embeddings(384)
 text_encoder = text_encoder.to(device)
 
 # Load and inspect your pre-trained prompt encoder
@@ -73,63 +72,78 @@ model, text_encoder, pre_trained_prompt, conv_prompt_encoder, rec_prompt_encoder
 
 # Function to get recommendations
 def get_recommendations(context):
-    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
-    context_embeds = text_encoder(context_ids).last_hidden_state
-    
-    # Adjust dimensions
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
-    rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
-    
-    with torch.no_grad():
-        rec_output = model.generate(
-            inputs_embeds=rec_prompt,
-            max_length=32,
-            num_return_sequences=3,
-            no_repeat_ngram_size=2,
-            top_k=50,
-            top_p=0.95,
-            temperature=0.7,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
-        )
-    
-    recommendations = [tokenizer.decode(rec, skip_special_tokens=True) for rec in rec_output]
-    return recommendations
+    try:
+        context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
+        context_embeds = text_encoder(context_ids).last_hidden_state
+        
+        print("Context embeds shape:", context_embeds.shape)
+        
+        # Adjust dimensions
+        pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
+        print("Pre-trained prompt embeds shape:", pre_trained_prompt_embeds.shape)
+        
+        rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
+        print("Rec prompt shape:", rec_prompt.shape)
+        
+        with torch.no_grad():
+            rec_output = model.generate(
+                inputs_embeds=rec_prompt,
+                max_length=32,
+                num_return_sequences=3,
+                no_repeat_ngram_size=2,
+                top_k=50,
+                top_p=0.95,
+                temperature=0.7,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        
+        recommendations = [tokenizer.decode(rec, skip_special_tokens=True) for rec in rec_output]
+        return recommendations
+    except Exception as e:
+        print(f"Error in get_recommendations: {e}")
+        return ["Error occurred while generating recommendations."]
 
 # Chatbot function
 def chatbot(message, history):
-    context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
-    
-    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
-    context_embeds = text_encoder(context_ids).last_hidden_state
-    print('ĐÂY LÀ CONTEXT_EMBED', context_embeds)
-    print('ĐÂY LÀ SIZE CỦA NÓ', context_embeds.size())
-    
-    # Adjust dimensions
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
-    conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)
-    
-    with torch.no_grad():
-        output = model.generate(
-            inputs_embeds=conv_prompt,
-            max_length=183,
-            num_return_sequences=1,
-            no_repeat_ngram_size=2,
-            top_k=50,
-            top_p=0.95,
-            temperature=0.7,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
-        )
-    
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
-    
-    recommendations = get_recommendations(context + " " + response)
-    
-    response += "\n\nBased on our conversation, you might like these recommendations:\n"
-    response += "\n".join([f"- {rec}" for rec in recommendations])
-    
-    return response
+    try:
+        context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
+        
+        context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
+        context_embeds = text_encoder(context_ids).last_hidden_state
+        print('Context embed shape:', context_embeds.shape)
+        
+        # Adjust dimensions
+        pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
+        print('Pre-trained prompt embeds shape:', pre_trained_prompt_embeds.shape)
+        
+        conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)
+        print('Conv prompt shape:', conv_prompt.shape)
+        
+        with torch.no_grad():
+            output = model.generate(
+                inputs_embeds=conv_prompt,
+                max_length=183,
+                num_return_sequences=1,
+                no_repeat_ngram_size=2,
+                top_k=50,
+                top_p=0.95,
+                temperature=0.7,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        
+        response = tokenizer.decode(output[0], skip_special_tokens=True)
+        
+        recommendations = get_recommendations(context + " " + response)
+        
+        response += "\n\nBased on our conversation, you might like these recommendations:\n"
+        response += "\n".join([f"- {rec}" for rec in recommendations])
+        
+        return response
+    except Exception as e:
+        print(f"Error in chatbot: {e}")
+        return "An error occurred while processing your message. Please try again."
 
 # Create the Gradio interface
 iface = gr.ChatInterface(

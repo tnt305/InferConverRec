@@ -27,16 +27,22 @@ print("Recommendation prompt encoder state keys:", rec_prompt_encoder_state.keys
 def create_linear_from_state(state_dict):
     if isinstance(state_dict, dict):
         if 'weight' in state_dict:
-            # Handle the case where the state dict has a weight and bias
             weight = state_dict['weight']
-            bias = state_dict['bias'] if 'bias' in state_dict else None
+            bias = state_dict.get('bias')
         else:
-            # The state_dict might directly contain the weight matrix
-            weight = state_dict
+            # If there's no 'weight' key, assume the first item is the weight
+            weight = next(iter(state_dict.values()))
             bias = None
     else:
         weight = state_dict
         bias = None
+
+    if isinstance(weight, dict):
+        # If weight is still a dict, take its first value
+        weight = next(iter(weight.values()))
+
+    if not isinstance(weight, torch.Tensor):
+        raise ValueError(f"Weight must be a tensor, got {type(weight)}")
 
     linear = torch.nn.Linear(weight.size(1), weight.size(0), bias=(bias is not None)).to(device)
     with torch.no_grad():
@@ -44,6 +50,10 @@ def create_linear_from_state(state_dict):
         if bias is not None:
             linear.bias.copy_(bias)
     return linear
+
+# print("Pre-trained prompt state:", pre_trained_prompt_state)
+# print("Conversation prompt encoder state:", conv_prompt_encoder_state)
+# print("Recommendation prompt encoder state:", rec_prompt_encoder_state)
 
 # Create linear layers
 pre_trained_prompt = create_linear_from_state(pre_trained_prompt_state)

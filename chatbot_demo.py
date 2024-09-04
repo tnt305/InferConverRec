@@ -16,11 +16,11 @@ tokenizer.add_special_tokens({
 model.config.pad_token_id = tokenizer.pad_token_id
 
 
-text_tokenizer = AutoTokenizer.from_pretrained("FacebookAI/roberta-base")
+text_tokenizer = RobertaTokenizer.from_pretrained("FacebookAI/roberta-base")
 text_tokenizer.add_special_tokens({
     'additional_special_tokens': ['<movie>'],
 })
-text_encoder = AutoModel.from_pretrained("FacebookAI/roberta-base").to(device)
+text_encoder = RobertaModel.from_pretrained("FacebookAI/roberta-base").to(device)
 text_encoder.resize_token_embeddings(384)
 
 # Load and inspect your pre-trained prompt encoder

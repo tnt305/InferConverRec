@@ -12,19 +12,32 @@ model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small").to(devi
 text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
 
-# Load your pre-trained prompt encoder
+# Load and inspect your pre-trained prompt encoder
 pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
-pre_trained_prompt = torch.nn.Linear(pre_trained_prompt_state['weight'].size(1), pre_trained_prompt_state['weight'].size(0)).to(device)
-pre_trained_prompt.load_state_dict(pre_trained_prompt_state)
+print("Pre-trained prompt state keys:", pre_trained_prompt_state.keys())
 
-# Load your trained prompts for conversation and recommendation
+# Load and inspect your trained prompts for conversation and recommendation
 conv_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
-conv_prompt_encoder = torch.nn.Linear(conv_prompt_encoder_state['weight'].size(1), conv_prompt_encoder_state['weight'].size(0)).to(device)
-conv_prompt_encoder.load_state_dict(conv_prompt_encoder_state)
+print("Conversation prompt encoder state keys:", conv_prompt_encoder_state.keys())
 
 rec_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
-rec_prompt_encoder = torch.nn.Linear(rec_prompt_encoder_state['weight'].size(1), rec_prompt_encoder_state['weight'].size(0)).to(device)
-rec_prompt_encoder.load_state_dict(rec_prompt_encoder_state)
+print("Recommendation prompt encoder state keys:", rec_prompt_encoder_state.keys())
+
+# Function to create a linear layer from state dict
+def create_linear_from_state(state_dict):
+    if 'weight' in state_dict and 'bias' in state_dict:
+        linear = torch.nn.Linear(state_dict['weight'].size(1), state_dict['weight'].size(0)).to(device)
+        linear.load_state_dict(state_dict)
+    else:
+        # Assuming the state dict is the weight matrix itself
+        linear = torch.nn.Linear(state_dict.size(1), state_dict.size(0), bias=False).to(device)
+        linear.weight.data = state_dict
+    return linear
+
+# Create linear layers
+pre_trained_prompt = create_linear_from_state(pre_trained_prompt_state)
+conv_prompt_encoder = create_linear_from_state(conv_prompt_encoder_state)
+rec_prompt_encoder = create_linear_from_state(rec_prompt_encoder_state)
 
 # Set up Accelerator
 accelerator = Accelerator()

@@ -9,28 +9,35 @@ model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
 text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 text_encoder = RobertaModel.from_pretrained("roberta-base")
 
-# Load your trained prompts
-conv_prompt_encoder = torch.load("/path/to/prompt for conversation")
-rec_prompt_encoder = torch.load("/path/to/prompt for recommendation")
+# Load your pre-trained prompt encoder
+pre_trained_prompt = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt")
+
+# Load your trained prompts for conversation and recommendation
+conv_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt")
+rec_prompt_encoder = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt")
 
 # Set up Accelerator
 accelerator = Accelerator()
-model, text_encoder, conv_prompt_encoder, rec_prompt_encoder = accelerator.prepare(
-    model, text_encoder, conv_prompt_encoder, rec_prompt_encoder
+model, text_encoder, pre_trained_prompt, conv_prompt_encoder, rec_prompt_encoder = accelerator.prepare(
+    model, text_encoder, pre_trained_prompt, conv_prompt_encoder, rec_prompt_encoder
 )
 
 # Function to get recommendations
 def get_recommendations(context):
     # Tokenize the context
     context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True)
+    context_embeds = text_encoder(context_ids).last_hidden_state
+    
+    # Generate pre-trained prompt
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
     
     # Prepare the recommendation prompt
-    rec_prompt = rec_prompt_encoder(context_ids)
+    rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
     
     # Generate recommendation
     with torch.no_grad():
         rec_output = model.generate(
-            input_ids=context_ids,
+            inputs_embeds=rec_prompt,
             max_length=32,  # Adjust based on your entity_max_length
             num_return_sequences=3,  # Get top 3 recommendations
             no_repeat_ngram_size=2,
@@ -39,12 +46,10 @@ def get_recommendations(context):
             temperature=0.7,
             do_sample=True,
             pad_token_id=tokenizer.eos_token_id,
-            attention_mask=torch.ones(context_ids.shape, dtype=torch.long),
-            prefix=rec_prompt
         )
     
     # Decode recommendations
-    recommendations = [text_tokenizer.decode(rec, skip_special_tokens=True) for rec in rec_output]
+    recommendations = [tokenizer.decode(rec, skip_special_tokens=True) for rec in rec_output]
     return recommendations
 
 # Chatbot function
@@ -53,15 +58,19 @@ def chatbot(message, history):
     context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
     
     # Tokenize the input
-    input_ids = tokenizer.encode(context + tokenizer.eos_token, return_tensors="pt", max_length=200, truncation=True)
+    context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True)
+    context_embeds = text_encoder(context_ids).last_hidden_state
+    
+    # Generate pre-trained prompt
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
     
     # Prepare the conversation prompt
-    conv_prompt = conv_prompt_encoder(input_ids)
+    conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)
     
     # Generate a response
     with torch.no_grad():
         output = model.generate(
-            input_ids=input_ids,
+            inputs_embeds=conv_prompt,
             max_length=183,  # Based on your resp_max_length
             num_return_sequences=1,
             no_repeat_ngram_size=2,
@@ -70,8 +79,6 @@ def chatbot(message, history):
             temperature=0.7,
             do_sample=True,
             pad_token_id=tokenizer.eos_token_id,
-            attention_mask=torch.ones(input_ids.shape, dtype=torch.long),
-            prefix=conv_prompt
         )
     
     # Decode the response
@@ -90,7 +97,7 @@ def chatbot(message, history):
 iface = gr.ChatInterface(
     chatbot,
     title="Conversational Recommendation Chatbot",
-    description="This is a demo of a conversational recommendation system. Ask me about movies, books, or activities!",
+    description="This is a demo of a conversational recommendation system with pre-trained prompts. Ask me about movies, books, or activities!",
     examples=[
         "Can you recommend a good movie?",
         "What's a fun activity for the weekend?",

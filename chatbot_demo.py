@@ -89,9 +89,9 @@ def chatbot(message, history):
     context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
     
     context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
+    context_embeds = text_encoder(context_ids).last_hidden_state
     print('ĐÂY LÀ CONTEXT_EMBED', context_embeds)
     print('ĐÂY LÀ SIZE CỦA NÓ', context_embeds.size())
-    context_embeds = text_encoder(context_ids).last_hidden_state
     
     # Adjust dimensions
     pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))

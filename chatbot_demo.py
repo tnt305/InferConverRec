@@ -13,15 +13,9 @@ text_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 text_encoder = RobertaModel.from_pretrained("roberta-base").to(device)
 
 # Load and inspect your pre-trained prompt encoder
-pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/final/model.pt", map_location=device)
-print("Pre-trained prompt state keys:", pre_trained_prompt_state.keys())
-
-# Load and inspect your trained prompts for conversation and recommendation
-conv_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/final/model.pt", map_location=device)
-print("Conversation prompt encoder state keys:", conv_prompt_encoder_state.keys())
-
-rec_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/final/model.pt", map_location=device)
-print("Recommendation prompt encoder state keys:", rec_prompt_encoder_state.keys())
+pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
+conv_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
+rec_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
 
 # Function to create a linear layer from state dict
 def create_linear_from_state(state_dict):
@@ -30,7 +24,6 @@ def create_linear_from_state(state_dict):
             weight = state_dict['weight']
             bias = state_dict.get('bias')
         else:
-            # If there's no 'weight' key, assume the first item is the weight
             weight = next(iter(state_dict.values()))
             bias = None
     else:
@@ -38,7 +31,6 @@ def create_linear_from_state(state_dict):
         bias = None
 
     if isinstance(weight, dict):
-        # If weight is still a dict, take its first value
         weight = next(iter(weight.values()))
 
     if not isinstance(weight, torch.Tensor):
@@ -69,22 +61,18 @@ model, text_encoder, pre_trained_prompt, conv_prompt_encoder, rec_prompt_encoder
 
 # Function to get recommendations
 def get_recommendations(context):
-    # Tokenize the context
     context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
     context_embeds = text_encoder(context_ids).last_hidden_state
     
-    # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
-    
-    # Prepare the recommendation prompt
+    # Adjust dimensions
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
     rec_prompt = rec_prompt_encoder(pre_trained_prompt_embeds)
     
-    # Generate recommendation
     with torch.no_grad():
         rec_output = model.generate(
             inputs_embeds=rec_prompt,
-            max_length=32,  # Adjust based on your entity_max_length
-            num_return_sequences=3,  # Get top 3 recommendations
+            max_length=32,
+            num_return_sequences=3,
             no_repeat_ngram_size=2,
             top_k=50,
             top_p=0.95,
@@ -93,30 +81,24 @@ def get_recommendations(context):
             pad_token_id=tokenizer.eos_token_id,
         )
     
-    # Decode recommendations
     recommendations = [tokenizer.decode(rec, skip_special_tokens=True) for rec in rec_output]
     return recommendations
 
 # Chatbot function
 def chatbot(message, history):
-    # Combine history and new message
     context = " ".join([f"{turn[0]} {turn[1]}" for turn in history]) + " " + message
     
-    # Tokenize the input
     context_ids = text_tokenizer.encode(context, return_tensors="pt", max_length=200, truncation=True).to(device)
     context_embeds = text_encoder(context_ids).last_hidden_state
     
-    # Generate pre-trained prompt
-    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds)
-    
-    # Prepare the conversation prompt
+    # Adjust dimensions
+    pre_trained_prompt_embeds = pre_trained_prompt(context_embeds.mean(dim=1).unsqueeze(1))
     conv_prompt = conv_prompt_encoder(pre_trained_prompt_embeds)
     
-    # Generate a response
     with torch.no_grad():
         output = model.generate(
             inputs_embeds=conv_prompt,
-            max_length=183,  # Based on your resp_max_length
+            max_length=183,
             num_return_sequences=1,
             no_repeat_ngram_size=2,
             top_k=50,
@@ -126,13 +108,10 @@ def chatbot(message, history):
             pad_token_id=tokenizer.eos_token_id,
         )
     
-    # Decode the response
     response = tokenizer.decode(output[0], skip_special_tokens=True)
     
-    # Get recommendations
     recommendations = get_recommendations(context + " " + response)
     
-    # Append recommendations to the response
     response += "\n\nBased on our conversation, you might like these recommendations:\n"
     response += "\n".join([f"- {rec}" for rec in recommendations])
     

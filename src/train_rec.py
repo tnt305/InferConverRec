@@ -256,7 +256,7 @@ if __name__ == '__main__':
                 use_rec_prefix=True
             )
             batch['context']['prompt_embeds'] = prompt_embeds
-            batch['context']['entity_embeds'] = prompt_encoder.modules.get_entity_embeds()
+            batch['context']['entity_embeds'] = prompt_encoder.module.get_entity_embeds()
 
             loss = model(**batch['context'], rec=True).rec_loss / args.gradient_accumulation_steps
             accelerator.backward(loss)
@@ -297,7 +297,7 @@ if __name__ == '__main__':
                     use_rec_prefix=True
                 )
                 batch['context']['prompt_embeds'] = prompt_embeds
-                batch['context']['entity_embeds'] = prompt_encoder.modules.get_entity_embeds()
+                batch['context']['entity_embeds'] = prompt_encoder.module.get_entity_embeds()
 
                 outputs = model(**batch['context'], rec=True)
                 valid_loss.append(float(outputs.rec_loss))
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         evaluator.reset_metric()
 
         if valid_report[f'valid/{metric}'] * mode > best_metric * mode:
-            prompt_encoder.modules.save(best_metric_dir)
+            prompt_encoder.module.save(best_metric_dir)
             best_metric = valid_report[f'valid/{metric}']
             logger.info(f'new best model with {metric}')
 
@@ -346,7 +346,7 @@ if __name__ == '__main__':
                     use_rec_prefix=True
                 )
                 batch['context']['prompt_embeds'] = prompt_embeds
-                batch['context']['entity_embeds'] = prompt_encoder.modules.get_entity_embeds()
+                batch['context']['entity_embeds'] = prompt_encoder.module.get_entity_embeds()
 
                 outputs = model(**batch['context'], rec=True)
                 test_loss.append(float(outputs.rec_loss))
@@ -378,5 +378,5 @@ if __name__ == '__main__':
         evaluator.reset_metric()
 
     final_dir = os.path.join(args.output_dir, 'final')
-    prompt_encoder.modules.save(final_dir)
+    prompt_encoder.module.save(final_dir)
     logger.info(f'save final model')

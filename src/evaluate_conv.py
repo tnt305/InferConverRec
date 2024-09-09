@@ -67,16 +67,21 @@ class ConvEvaluator:
         for k in range(1, 5):
             dist_k = f'intra-dist@{k}'
             self.metric[dist_k] += self._intra_dist(preds, k)
-
+    
     def _intra_dist(self, preds, k):
         intra = 0.0
         for pred in preds:
-            pred = pred.split()
-            if len(pred) == 0:
-                continue
-            counts = Counter(ngrams(pred, k))
-            intra += max(len(counts), 1e-12) / max(sum(counts.values()), 1e-5)
-        return intra
+            words = pred.split()
+            if len(words) < k:
+                continue  # Skip this prediction if it's too short for k-grams
+            try:
+                counts = Counter(ngrams(words, k))
+                intra += max(len(counts), 1e-12) / max(sum(counts.values()), 1e-5)
+            except Exception as e:
+                print(f"Error computing intra-dist for k={k}, pred='{pred}'")
+                print(f"Error details: {e}")
+                continue  # Skip to the next prediction
+        return intra / max(len(preds), 1)  # Avoid division by zero
 
     def compute_bleu(self, preds, labels):
         for pred, label in zip(preds, labels):

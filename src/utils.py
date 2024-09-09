@@ -58,7 +58,7 @@ def padded_tensor(
         if not isinstance(item, torch.Tensor):
             item = torch.tensor(item, dtype=torch.long, device=device)
         if pad_tail:
-            output[i, :length] = item
+            output[i, :length+1] = item
         else:
             output[i, t - length:] = item
 

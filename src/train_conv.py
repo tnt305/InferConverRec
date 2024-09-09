@@ -122,7 +122,7 @@ if __name__ == '__main__':
     model = PromptGPT2forCRS.from_pretrained(args.model)
     model.resize_token_embeddings(len(tokenizer))
     model.config.pad_token_id = tokenizer.pad_token_id
-    model.config.eos_token_id = tokenizer.eos_token_idid
+    model.config.eos_token_id = tokenizer.eos_token_id
     model = model.to(device)
 
     text_tokenizer = AutoTokenizer.from_pretrained(args.text_tokenizer)

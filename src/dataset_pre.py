@@ -10,99 +10,33 @@ from transformers import AutoTokenizer
 from utils import padded_tensor
 
 
-# class CRSDataset(Dataset):
-#     def __init__(
-#         self, dataset, split, tokenizer, debug=False,
-#         max_length=None, entity_max_length=None,
-#         prompt_tokenizer=None, prompt_max_length=None
-#     ):
-#         super(CRSDataset, self).__init__()
-#         self.debug = debug
-#         self.tokenizer = tokenizer
-#         self.prompt_tokenizer = prompt_tokenizer
-
-#         self.max_length = max_length
-#         if self.max_length is None:
-#             self.max_length = self.tokenizer.model_max_length
-
-#         self.prompt_max_length = prompt_max_length
-#         if self.prompt_max_length is None:
-#             self.prompt_max_length = self.prompt_tokenizer.model_max_length
-#         self.prompt_max_length -= 1
-
-#         self.entity_max_length = entity_max_length
-#         if self.entity_max_length is None:
-#             self.entity_max_length = self.tokenizer.model_max_length
-
-#         dataset_dir = os.path.join('data', dataset)
-#         data_file = os.path.join(dataset_dir, f'{split}_data_processed.jsonl')
-#         self.data = []
-#         self.prepare_data(data_file)
-
-#     def prepare_data(self, data_file):
-#         with open(data_file, 'r', encoding='utf-8') as f:
-#             lines = f.readlines()
-#             if self.debug:
-#                 lines = lines[:1024]
-
-#             for line in tqdm(lines):
-#                 dialog = json.loads(line)
-#                 if len(dialog['rec']) == 0:
-#                     continue
-#                 # if len(dialog['context']) == 1 and dialog['context'][0] == '':
-#                 #     continue
-
-#                 context = ''
-#                 prompt_context = ''
-#                 for i, utt in enumerate(dialog['context']):
-#                     if utt == '':
-#                         continue
-#                     if i % 2 == 0:
-#                         context += 'User: '
-#                         prompt_context += 'User: '
-#                     else:
-#                         context += 'System: '
-#                         prompt_context += 'System: '
-#                     context += utt
-#                     context += self.tokenizer.eos_token
-#                     prompt_context += utt
-#                     prompt_context += self.prompt_tokenizer.sep_token
-#                 if i % 2 == 0:
-#                     resp = 'System: '
-#                 else:
-#                     resp = 'User: '
-#                 resp += dialog['resp']
-#                 context += resp + self.tokenizer.eos_token
-#                 prompt_context += resp + self.prompt_tokenizer.sep_token
-
-#                 context_ids = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(context))
-#                 context_ids = context_ids[-self.max_length:]
-
-#                 prompt_ids = self.prompt_tokenizer.convert_tokens_to_ids(self.prompt_tokenizer.tokenize(prompt_context))
-#                 prompt_ids = prompt_ids[-self.prompt_max_length:]
-#                 prompt_ids.insert(0, self.prompt_tokenizer.cls_token_id)
-
-#                 for rec in dialog['rec']:
-#                     data = {
-#                         'context': context_ids,
-#                         'prompt': prompt_ids,
-#                         'entity': dialog['entity'][-self.entity_max_length:],
-#                         'rec': rec,
-#                     }
-#                     self.data.append(data)
-
-#     def __getitem__(self, ind):
-#         return self.data[ind]
-
-#     def __len__(self):
-#         return len(self.data)
 class CRSDataset(Dataset):
     def __init__(
         self, dataset, split, tokenizer, debug=False,
         max_length=None, entity_max_length=None,
         prompt_tokenizer=None, prompt_max_length=None
     ):
-        # ...
+        super(CRSDataset, self).__init__()
+        self.debug = debug
+        self.tokenizer = tokenizer
+        self.prompt_tokenizer = prompt_tokenizer
+
+        self.max_length = max_length
+        if self.max_length is None:
+            self.max_length = self.tokenizer.model_max_length
+
+        self.prompt_max_length = prompt_max_length
+        if self.prompt_max_length is None:
+            self.prompt_max_length = self.prompt_tokenizer.model_max_length
+        self.prompt_max_length -= 1
+
+        self.entity_max_length = entity_max_length
+        if self.entity_max_length is None:
+            self.entity_max_length = self.tokenizer.model_max_length
+
+        dataset_dir = os.path.join('data', dataset)
+        data_file = os.path.join(dataset_dir, f'{split}_data_processed.jsonl')
+        self.data = []
         self.prepare_data(data_file)
 
     def prepare_data(self, data_file):
@@ -115,6 +49,8 @@ class CRSDataset(Dataset):
                 dialog = json.loads(line)
                 if len(dialog['rec']) == 0:
                     continue
+                # if len(dialog['context']) == 1 and dialog['context'][0] == '':
+                #     continue
 
                 context = ''
                 prompt_context = ''
@@ -127,15 +63,15 @@ class CRSDataset(Dataset):
                     else:
                         context += 'System: '
                         prompt_context += 'System: '
-                    context += self.clean_up_token_space(utt)
+                    context += utt
                     context += self.tokenizer.eos_token
-                    prompt_context += self.clean_up_token_space(utt)
+                    prompt_context += utt
                     prompt_context += self.prompt_tokenizer.sep_token
                 if i % 2 == 0:
                     resp = 'System: '
                 else:
                     resp = 'User: '
-                resp += self.clean_up_token_space(dialog['resp'])
+                resp += dialog['resp']
                 context += resp + self.tokenizer.eos_token
                 prompt_context += resp + self.prompt_tokenizer.sep_token
 
@@ -160,9 +96,73 @@ class CRSDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+# class CRSDataset(Dataset):
+#     def __init__(
+#         self, dataset, split, tokenizer, debug=False,
+#         max_length=None, entity_max_length=None,
+#         prompt_tokenizer=None, prompt_max_length=None
+#     ):
+#         # ...
+#         self.prepare_data(data_file)
 
-    def clean_up_token_space(self, text):
-        return ' '.join(text.strip().split())
+#     def prepare_data(self, data_file):
+#         with open(data_file, 'r', encoding='utf-8') as f:
+#             lines = f.readlines()
+#             if self.debug:
+#                 lines = lines[:1024]
+
+#             for line in tqdm(lines):
+#                 dialog = json.loads(line)
+#                 if len(dialog['rec']) == 0:
+#                     continue
+
+#                 context = ''
+#                 prompt_context = ''
+#                 for i, utt in enumerate(dialog['context']):
+#                     if utt == '':
+#                         continue
+#                     if i % 2 == 0:
+#                         context += 'User: '
+#                         prompt_context += 'User: '
+#                     else:
+#                         context += 'System: '
+#                         prompt_context += 'System: '
+#                     context += self.clean_up_token_space(utt)
+#                     context += self.tokenizer.eos_token
+#                     prompt_context += self.clean_up_token_space(utt)
+#                     prompt_context += self.prompt_tokenizer.sep_token
+#                 if i % 2 == 0:
+#                     resp = 'System: '
+#                 else:
+#                     resp = 'User: '
+#                 resp += self.clean_up_token_space(dialog['resp'])
+#                 context += resp + self.tokenizer.eos_token
+#                 prompt_context += resp + self.prompt_tokenizer.sep_token
+
+#                 context_ids = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(context))
+#                 context_ids = context_ids[-self.max_length:]
+
+#                 prompt_ids = self.prompt_tokenizer.convert_tokens_to_ids(self.prompt_tokenizer.tokenize(prompt_context))
+#                 prompt_ids = prompt_ids[-self.prompt_max_length:]
+#                 prompt_ids.insert(0, self.prompt_tokenizer.cls_token_id)
+
+#                 for rec in dialog['rec']:
+#                     data = {
+#                         'context': context_ids,
+#                         'prompt': prompt_ids,
+#                         'entity': dialog['entity'][-self.entity_max_length:],
+#                         'rec': rec,
+#                     }
+#                     self.data.append(data)
+
+#     def __getitem__(self, ind):
+#         return self.data[ind]
+
+#     def __len__(self):
+#         return len(self.data)
+
+#     def clean_up_token_space(self, text):
+#         return ' '.join(text.strip().split())
 
 
 class CRSDataCollator:

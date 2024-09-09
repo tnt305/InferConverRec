@@ -94,6 +94,7 @@ if __name__ == '__main__':
         transformers.utils.logging.set_verbosity_error()
     # wandb
     if args.use_wandb:
+        wandb.login(key='02ba155e26496a78f062f683274330566fefe94c')
         name = args.name if args.name else local_time
         name += '_' + str(accelerator.process_index)
 

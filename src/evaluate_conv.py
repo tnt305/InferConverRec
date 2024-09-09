@@ -47,13 +47,20 @@ class ConvEvaluator:
             [pred for pred in decoded_preds if len(pred) > 0]
         )  # number of samples: rouge, intra-distinct
 
-    def collect_ngram(self, strs):
-        for str in strs:
-            str = str.split()
+    def collect_ngram(self, strs: List[str]):
+        for s in strs:
+            words = s.split()
+            if not words:  # Skip empty strings
+                continue
             for k in range(1, 5):
                 dist_k = f'dist@{k}'
-                for token in ngrams(str, k):
-                    self.metric[dist_k].append(token)
+                try:
+                    for token in ngrams(words, k):
+                        self.metric[dist_k].append(token)
+                except ValueError as e:
+                    print(f"Error generating {k}-grams for string: '{s}'")
+                    print(f"Error details: {e}")
+                    continue
 
     def compute_intra_dist(self, preds):
         for k in range(1, 5):

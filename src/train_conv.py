@@ -122,6 +122,7 @@ if __name__ == '__main__':
     model = PromptGPT2forCRS.from_pretrained(args.model)
     model.resize_token_embeddings(len(tokenizer))
     model.config.pad_token_id = tokenizer.pad_token_id
+    model.config.eos_token_id = tokenizer.eos_token_idid
     model = model.to(device)
 
     text_tokenizer = AutoTokenizer.from_pretrained(args.text_tokenizer)
@@ -357,7 +358,7 @@ if __name__ == '__main__':
 
         if valid_report[f'valid/{metric}'] * mode > best_metric * mode:
             best_metric = valid_report[f'valid/{metric}']
-            prompt_encoder.module.save(best_metric_dir)
+            accelerator.unwrap_model(prompt_encoder).save(best_metric)
             logger.info(f'new best model with {metric}')
 
         # test
@@ -417,5 +418,5 @@ if __name__ == '__main__':
         evaluator.log_cnt += 1
 
     final_dir = os.path.join(args.output_dir, 'final')
-    prompt_encoder.module.save(final_dir)
+    accelerator.unwrap_model(prompt_encoder).save(final_dir)
     logger.info(f'save final model')

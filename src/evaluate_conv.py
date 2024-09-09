@@ -50,14 +50,15 @@ class ConvEvaluator:
     def collect_ngram(self, strs: List[str]):
         for s in strs:
             words = s.split()
-            if not words:  # Skip empty strings
-                continue
             for k in range(1, 5):
                 dist_k = f'dist@{k}'
+                if len(words) < k:
+                    # Skip if there aren't enough words to form k-grams
+                    continue
                 try:
-                    for token in ngrams(words, k):
-                        self.metric[dist_k].append(token)
-                except ValueError as e:
+                    tokens = list(ngrams(words, k))
+                    self.metric[dist_k].extend(tokens)
+                except Exception as e:
                     print(f"Error generating {k}-grams for string: '{s}'")
                     print(f"Error details: {e}")
                     continue

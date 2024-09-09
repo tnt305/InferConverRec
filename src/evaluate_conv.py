@@ -5,7 +5,7 @@ from collections import Counter
 import rouge
 from nltk import ngrams
 from nltk.translate.bleu_score import sentence_bleu
-
+from typing import List
 from utils import normalize_answer
 
 # year_pattern = re.compile(r'\(\d{4}\)')

@@ -57,17 +57,31 @@ def padded_tensor(
             continue
         if not isinstance(item, torch.Tensor):
             item = torch.tensor(item, dtype=torch.long, device=device)
-        
-        # Ensure item doesn't exceed the output tensor's size
-        item = item[:t]
-        length = min(length, t)
-        
         if pad_tail:
-            output[i, :length] = item[:length]
+            output[i, :length] = item
         else:
-            output[i, t - length:] = item[:length]
+            output[i, t - length:] = item
 
     return output
+
+    # output = torch.full((n, t), fill_value=pad_idx, dtype=torch.long, device=device)
+
+    # for i, (item, length) in enumerate(zip(items, lens)):
+    #     if length == 0:
+    #         continue
+    #     if not isinstance(item, torch.Tensor):
+    #         item = torch.tensor(item, dtype=torch.long, device=device)
+        
+    #     # Ensure item doesn't exceed the output tensor's size
+    #     item = item[:t]
+    #     length = min(length, t)
+        
+    #     if pad_tail:
+    #         output[i, :length] = item[:length]
+    #     else:
+    #         output[i, t - length:] = item[:length]
+
+    # return output
 
 def normalize_answer(s):
     """

@@ -23,7 +23,7 @@ def process_utt(utt, movieid2name, replace_movieId, remove_movie=False):
         utt = re.sub(movie_pattern, convert, utt)
     utt = ' '.join(utt.split())
     utt = html.unescape(utt)
-
+    print("processed", utt)
     return utt
 
 
@@ -101,17 +101,17 @@ def process(data_file, out_file, movie_set):
 
 
 if __name__ == '__main__':
-    with open('data/redial/entity2id.json', 'r', encoding='utf-8') as f:
+    with open('./data/redial/entity2id.json', 'r', encoding='utf-8') as f:
         entity2id = json.load(f)
     id2entity = {v: k for k, v in entity2id.items()}
     movie_set = set()
     # with open('node2abs_link_clean.json', 'r', encoding='utf-8') as f:
     #     node2entity = json.load(f)
 
-    process('data/redial/valid_data_dbpedia.jsonl', 'data/redial/valid_data_processed.jsonl', movie_set)
-    process('data/redial/test_data_dbpedia.jsonl', 'data/redial/test_data_processed.jsonl', movie_set)
-    process('data/redial/train_data_dbpedia.jsonl', 'data/redial/train_data_processed.jsonl', movie_set)
+    process('./data/redial/valid_data_dbpedia.jsonl', './data/redial/valid_data_processed.jsonl', movie_set)
+    process('./data/redial/test_data_dbpedia.jsonl', './data/redial/test_data_processed.jsonl', movie_set)
+    process('./data/redial/train_data_dbpedia.jsonl', './data/redial/train_data_processed.jsonl', movie_set)
 
-    with open('data/redial/movie_ids.json', 'w', encoding='utf-8') as f:
+    with open('./data/redial/movie_ids.json', 'w', encoding='utf-8') as f:
         json.dump(list(movie_set), f, ensure_ascii=False)
     print(f'#movie: {len(movie_set)}')

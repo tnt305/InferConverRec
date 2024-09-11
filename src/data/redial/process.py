@@ -1,6 +1,5 @@
 import json
 import re
-
 import html
 from tqdm.auto import tqdm
 
@@ -21,7 +20,7 @@ def process_utt(utt, movieid2name, replace_movieId):
         utt = re.sub(movie_pattern, convert, utt)
     utt = ' '.join(utt.split())
     utt = html.unescape(utt)
-
+    print('test', utt)
     return utt
 
 
@@ -94,7 +93,7 @@ def process(data_file, out_file, movie_set):
 
 
 if __name__ == '__main__':
-    root_dir = 'data/redial'
+    root_dir = './data/redial'
     with open(f'{root_dir}/entity2id.json', 'r', encoding='utf-8') as f:
         entity2id = json.load(f)
     item_set = set()

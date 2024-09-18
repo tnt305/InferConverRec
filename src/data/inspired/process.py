@@ -43,6 +43,6 @@ if __name__ == '__main__':
     process('./data/inspired/valid_data_dbpedia.jsonl', './data/inspired/valid_data_processed.jsonl', item_set)
     process('./data/inspired/train_data_dbpedia.jsonl', './data/inspired/train_data_processed.jsonl', item_set)
 
-    with open('item_ids.json', 'w', encoding='utf-8') as f:
+    with open('./data/inspired/item_ids.json', 'w', encoding='utf-8') as f:
         json.dump(list(item_set), f, ensure_ascii=False)
     print(f'#item: {len(item_set)}')

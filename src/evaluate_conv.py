@@ -108,7 +108,7 @@ class ConvEvaluator:
     def _rouge(self, guess, answers, measure='r'):
         """Compute ROUGE score."""
         evaluator = rouge.Rouge(
-            metrics=['rouge-n', 'rouge-l'], max_n=2
+            metrics=['rouge-n', 'rouge-l']
         )
         score = evaluator.get_scores(guess, answers)
         return [score['rouge-1'][measure], score['rouge-2'][measure], score['rouge-l'][measure]]

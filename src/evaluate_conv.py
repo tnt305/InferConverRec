@@ -112,7 +112,7 @@ class ConvEvaluator:
     #     )
     #     score = evaluator.get_scores(guess, answers)
     #     return [score['rouge-1'][measure], score['rouge-2'][measure], score['rouge-l'][measure]]
-    def _rouge(self, guess, answers):
+    def _rouge(self, guess, answers, measure='r'):
         """Compute ROUGE score."""
         evaluator = rouge.Rouge(
             metrics=['rouge-1', 'rouge-2', 'rouge-l']
@@ -125,9 +125,9 @@ class ConvEvaluator:
             answers = " ".join(answers)
         
         score = evaluator.get_scores(guess, answers)
-        return [score[0]['rouge-1'][measure], 
-                score[0]['rouge-2'][measure], 
-                score[0]['rouge-l'][measure]]
+        return [score[0]['rouge-1'][self.measure], 
+                score[0]['rouge-2'][self.measure], 
+                score[0]['rouge-l'][self.measure]]
 
     def report(self):
         report = {}

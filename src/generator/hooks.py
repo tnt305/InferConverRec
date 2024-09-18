@@ -34,3 +34,11 @@ hook_sentences = [
     "Hi! Is there a movie you've been meaning to watch?",
     "Hey, any specific movies on your radar today?"
 ]
+
+
+apologise_error_404 = [
+    "Sorry, I don't seem to know the person or movie you are talking about!",
+    "Ah, my circuits seem to have been fried. I can't find the movie / person you are referring to!",
+    "Sorry, that movie / person has not been found in our system. Can you describe a similar movie?",
+    "That movie is kind of new to us. Please provide me more about the movie, for example genres, actors, ..",
+]

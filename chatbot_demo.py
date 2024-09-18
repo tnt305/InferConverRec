@@ -24,9 +24,9 @@ text_encoder = RobertaModel.from_pretrained("FacebookAI/roberta-base")
 text_encoder = text_encoder.to(device)
 
 # Load and inspect your pre-trained prompt encoder
-pre_trained_prompt_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
-conv_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
-rec_prompt_encoder_state = torch.load("/kaggle/working/InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
+pre_trained_prompt_state = torch.load("InferConverRec/src/output_dir/dialogpt_prompt-pre_prefix-20_redial/best/model.pt", map_location=device)
+conv_prompt_encoder_state = torch.load("InferConverRec/src/output_dir/dialogpt_redial-resp/best/model.pt", map_location=device)
+rec_prompt_encoder_state = torch.load("InferConverRec/src/output_dir/dialogpt_rec_redial/best/model.pt", map_location=device)
 
 # Function to create a linear layer from state dict
 def create_linear_from_state(state_dict):

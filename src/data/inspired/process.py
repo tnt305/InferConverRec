@@ -35,13 +35,13 @@ def process(data_file, out_file, movie_set):
 
 
 if __name__ == '__main__':
-    with open('entity2id.json', 'r', encoding='utf-8') as f:
+    with open('./data/inspired/entity2id.json', 'r', encoding='utf-8') as f:
         entity2id = json.load(f)
     item_set = set()
 
-    process('test_data_dbpedia.jsonl', 'test_data_processed.jsonl', item_set)
-    process('valid_data_dbpedia.jsonl', 'valid_data_processed.jsonl', item_set)
-    process('train_data_dbpedia.jsonl', 'train_data_processed.jsonl', item_set)
+    process('./data/inspired/test_data_dbpedia.jsonl', './data/inspired/test_data_processed.jsonl', item_set)
+    process('./data/inspired/valid_data_dbpedia.jsonl', './data/inspired/valid_data_processed.jsonl', item_set)
+    process('./data/inspired/train_data_dbpedia.jsonl', './data/inspired/train_data_processed.jsonl', item_set)
 
     with open('item_ids.json', 'w', encoding='utf-8') as f:
         json.dump(list(item_set), f, ensure_ascii=False)

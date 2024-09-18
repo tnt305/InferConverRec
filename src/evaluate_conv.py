@@ -125,9 +125,9 @@ class ConvEvaluator:
             answers = " ".join(answers)
         
         score = evaluator.get_scores(guess, answers)
-        return [score[0]['rouge-1'][self.measure], 
-                score[0]['rouge-2'][self.measure], 
-                score[0]['rouge-l'][self.measure]]
+        return [score[0]['rouge-1'][measure], 
+                score[0]['rouge-2'][measure], 
+                score[0]['rouge-l'][measure]]
 
     def report(self):
         report = {}

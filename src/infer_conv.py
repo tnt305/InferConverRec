@@ -184,6 +184,8 @@ if __name__ == '__main__':
                 **batch['context'],
                 max_new_tokens=args.max_gen_len,
                 no_repeat_ngram_size=3,
+                temperature = 1.2,
+                top_k = 40
             )
             gen_resp_ids = []
             for gen_seq, length in zip(gen_seqs, batch['context_len']):

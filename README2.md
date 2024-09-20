@@ -1,3 +1,8 @@
+# Documentations
+
+English | [Origin](./README_origin.md) 
+
+
 ### ABout the dataset
 
 We uploaded the test data in `data/` folder, which can be used to form the prompt to query different LLMs. The `inspired` and `redial` datasets are adapted from the data provided by [`CRSLab`](https://github.com/RUCAIBox/CRSLab/tree/main), where we added some additional data fields like `is_user`.

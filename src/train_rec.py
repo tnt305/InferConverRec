@@ -58,7 +58,7 @@ def parse_args():
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument("--learning_rate", type=float, default=1e-5,
                         help="Initial learning rate (after the potential warmup period) to use.")
-    parser.add_argument("--weight_decay", type=float, default=0.03, help="Weight decay to use.")
+    parser.add_argument("--weight_decay", type=float, default=0.005005, help="Weight decay to use.")
     parser.add_argument('--max_grad_norm', type=float)
     parser.add_argument('--num_warmup_steps', type=int)
     parser.add_argument('--fp16', type = str, default = 'fp16')
@@ -265,13 +265,13 @@ if __name__ == '__main__':
             # optim step
             if step % args.gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                 if args.max_grad_norm is not None:
-                    total_norm = accelerator.clip_grad_norm_(prompt_encoder.parameters(), args.max_grad_norm)
-                    if total_norm > args.max_grad_norm:
-                        args.max_grad_norm *= 1.1  # Increase by 10%
-                    elif total_norm < args.max_grad_norm / 2:
-                        args.max_grad_norm *= 0.9  # Decrease by 10%
-                    if run:
-                        run.log({'gradient_norm': total_norm, 'max_grad_norm': args.max_grad_norm})
+                    accelerator.clip_grad_norm_(prompt_encoder.parameters(), args.max_grad_norm)
+                    # if total_norm > args.max_grad_norm:
+                    #     args.max_grad_norm *= 1.1  # Increase by 10%
+                    # elif total_norm < args.max_grad_norm / 2:
+                    #     args.max_grad_norm *= 0.9  # Decrease by 10%
+                    # if run:
+                    #     run.log({'gradient_norm': total_norm, 'max_grad_norm': args.max_grad_norm})
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()

@@ -8,7 +8,7 @@ gen_file_prefix = args.gen_file_prefix
 dataset = 'inspired'
 
 for split in ['train', 'valid', 'test']:
-    raw_file_path = f"../{dataset}/{split}_data_processed.jsonl"
+    raw_file_path = f"./data/{dataset}/{split}_data_processed.jsonl"
     raw_file = open(raw_file_path, encoding='utf-8')
     raw_data = raw_file.readlines()
     # print(len(raw_data))

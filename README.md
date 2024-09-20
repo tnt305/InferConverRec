@@ -45,3 +45,12 @@ cp -r data/inspired/. data/inspired_gen/
 #Recommendation training
 !bash train_rec.sh
 ```
+
+### Chitchat Inferencing.
+We provide two `chat_utils.py` and `chat_utils2.py` in `src` folder, whereas the first one do baseline process is generating an answer if there exists a entity movie name. The second one covers a more complex scenario when a user can mistyping entities or did not provide any item in the chat.
+
+In the end run `chatbot_demo.py` for testing it on gradio
+
+
+
+

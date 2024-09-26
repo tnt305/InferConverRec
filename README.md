@@ -48,7 +48,8 @@ cp -r data/inspired/. data/inspired_gen/
 
 ### Chitchat Inferencing.
 ```bash
-chatbot_demo.py```
+chatbot_demo.py
+```
 for testing it on gradio
 
 
